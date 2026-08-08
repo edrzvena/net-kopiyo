@@ -1,0 +1,100 @@
+## ---------------------------------------------------------------
+## .NET build output
+## ---------------------------------------------------------------
+[Bb]in/
+[Oo]bj/
+[Oo]ut/
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Ww][Ii][Nn]32/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+[Ll]og/
+[Ll]ogs/
+artifacts/
+publish/
+[Pp]ublish[Pp]rofiles/*.pubxml.user
+
+## ---------------------------------------------------------------
+## Visual Studio / VS Code / Rider
+## ---------------------------------------------------------------
+.vs/
+.vscode/
+.idea/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.userprefs
+*.DotSettings.user
+
+## ---------------------------------------------------------------
+## Test / coverage results
+## ---------------------------------------------------------------
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+*.trx
+*.coverage
+*.coveragexml
+coverage*.json
+coverage*.xml
+coverage*.info
+TestResults/
+
+## ---------------------------------------------------------------
+## NuGet
+## ---------------------------------------------------------------
+*.nupkg
+*.snupkg
+**/[Pp]ackages/*
+!**/[Pp]ackages/build/
+*.nuget.props
+*.nuget.targets
+
+## ---------------------------------------------------------------
+## Secrets / local config
+## ---------------------------------------------------------------
+appsettings.*.local.json
+appsettings.Local.json
+secrets.json
+*.pfx
+*.snk
+.env
+.env.*
+.mcp.json
+
+## ---------------------------------------------------------------
+## Database (local dev)
+## ---------------------------------------------------------------
+*.mdf
+*.ldf
+*.ndf
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+
+## ---------------------------------------------------------------
+## Frontend assets (kalau nanti pakai npm di wwwroot)
+## ---------------------------------------------------------------
+node_modules/
+npm-debug.log*
+yarn-error.log*
+
+## ---------------------------------------------------------------
+## OS / misc
+## ---------------------------------------------------------------
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.DS_Store
+*.tmp
+*.bak
+*.cache
+*.log
