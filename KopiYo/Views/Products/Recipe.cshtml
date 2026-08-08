@@ -1,0 +1,117 @@
+@model KopiYo.ViewModels.Products.ProductRecipeViewModel
+@{
+    ViewData["Title"] = "Resep - " + Model.ProductName;
+}
+
+<h1 class="h4 mb-1">Resep Bahan</h1>
+<p class="text-muted">Produk: <strong>@Model.ProductName</strong></p>
+
+<div class="alert alert-info py-2 small">
+    Setiap kali produk ini terjual, bahan di bawah otomatis dipotong dari stok
+    sebanyak jumlah per porsi &times; kuantitas penjualan.
+    Produk tanpa resep tetap bisa dijual &mdash; hanya saja tidak memotong stok apa pun.
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <form asp-action="Recipe" method="post">
+            <input type="hidden" asp-for="ProductId"/>
+            <input type="hidden" asp-for="ProductName"/>
+
+            <div class="table-responsive">
+                <table class="table align-middle" id="recipe-table">
+                    <thead class="table-light">
+                    <tr>
+                        <th>Bahan</th>
+                        <th style="width: 14rem;">Jumlah per Porsi</th>
+                        <th style="width: 10rem;" class="text-end">Stok Saat Ini</th>
+                        <th style="width: 6rem;"></th>
+                    </tr>
+                    </thead>
+                    <tbody id="recipe-body">
+                    @for (var i = 0; i < Model.Lines.Count; i++)
+                    {
+                        <tr>
+                            <td>
+                                <input type="hidden" name="Lines[@i].IngredientId" value="@Model.Lines[i].IngredientId"/>
+                                <input type="hidden" name="Lines[@i].IngredientName" value="@Model.Lines[i].IngredientName"/>
+                                @Model.Lines[i].IngredientName
+                            </td>
+                            <td>
+                                <div class="input-group input-group-sm">
+                                    <input name="Lines[@i].QtyPerServing" value="@Model.Lines[i].QtyPerServing"
+                                           class="form-control" type="number" step="0.001" min="0"/>
+                                    <span class="input-group-text">@Model.Lines[i].UnitLabel</span>
+                                </div>
+                            </td>
+                            <td class="text-end text-muted">@Model.Lines[i].StockQty.ToQty()</td>
+                            <td class="text-end">
+                                @* Menghapus baris = mengosongkan jumlahnya jadi 0.
+                                   Service akan menganggap baris ber-jumlah 0 sebagai dihapus. *@
+                                <button type="button" class="btn btn-sm btn-outline-danger btn-remove">Hapus</button>
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="row g-2 align-items-end border-top pt-3">
+                <div class="col-md-5">
+                    <label class="form-label small">Tambah bahan</label>
+                    <select id="new-ingredient" class="form-select" asp-items="Model.Ingredients">
+                        <option value="">-- pilih bahan --</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label small">Jumlah per porsi</label>
+                    <input id="new-qty" class="form-control" type="number" step="0.001" min="0" value="0"/>
+                </div>
+                <div class="col-md-2">
+                    <button type="button" class="btn btn-outline-primary w-100" id="btn-add-line">Tambah Baris</button>
+                </div>
+            </div>
+
+            <hr/>
+            <button type="submit" class="btn btn-dark">Simpan Resep</button>
+            <a class="btn btn-link" asp-action="Index">Kembali</a>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (function () {
+            // Indeks baris harus berurutan tanpa lompatan, kalau tidak model binding
+            // ASP.NET Core berhenti membaca Lines[] di celah pertama yang kosong.
+            let nextIndex = @Model.Lines.Count;
+
+            document.getElementById('btn-add-line').onclick = function () {
+                const select = document.getElementById('new-ingredient');
+                const qty = document.getElementById('new-qty');
+                if (!select.value || !(parseFloat(qty.value) > 0)) return;
+
+                const label = select.options[select.selectedIndex].text;
+                const row = document.createElement('tr');
+                row.innerHTML =
+                    '<td><input type="hidden" name="Lines[' + nextIndex + '].IngredientId" value="' + select.value + '">' + label + '</td>' +
+                    '<td><input name="Lines[' + nextIndex + '].QtyPerServing" value="' + qty.value + '" class="form-control form-control-sm" type="number" step="0.001" min="0"></td>' +
+                    '<td class="text-end text-muted">-</td>' +
+                    '<td class="text-end"><button type="button" class="btn btn-sm btn-outline-danger btn-remove">Hapus</button></td>';
+                document.getElementById('recipe-body').appendChild(row);
+
+                nextIndex++;
+                select.value = '';
+                qty.value = 0;
+            };
+
+            document.getElementById('recipe-table').addEventListener('click', function (e) {
+                if (!e.target.classList.contains('btn-remove')) return;
+                const row = e.target.closest('tr');
+                const input = row.querySelector('input[name$=".QtyPerServing"]');
+                if (input) input.value = 0;   // 0 = dihapus saat disimpan
+                row.remove();
+            });
+        })();
+    </script>
+}

@@ -1,0 +1,48 @@
+@model KopiYo.ViewModels.Reports.BestSellersViewModel
+@{
+    ViewData["Title"] = "Menu Terlaris";
+    var rank = 0;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h4 mb-0">Menu Terlaris</h1>
+    <a class="btn btn-outline-success"
+       asp-action="ExportBestSellersCsv" asp-route-from="@Model.From" asp-route-to="@Model.To">
+        Export CSV
+    </a>
+</div>
+
+<partial name="_RangeFilter" model="Model"/>
+
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+            <tr>
+                <th style="width: 4rem;">#</th>
+                <th>Produk</th>
+                <th class="text-center">Terjual</th>
+                <th class="text-end">Omzet</th>
+            </tr>
+            </thead>
+            <tbody>
+            @if (Model.Rows.Count == 0)
+            {
+                <tr>
+                    <td colspan="4" class="text-center text-muted py-4">Tidak ada penjualan di rentang ini.</td>
+                </tr>
+            }
+            @foreach (var r in Model.Rows)
+            {
+                rank++;
+                <tr>
+                    <td class="text-muted">@rank</td>
+                    <td class="fw-semibold">@r.ProductName</td>
+                    <td class="text-center">@r.QuantitySold</td>
+                    <td class="text-end">@r.Revenue.ToRupiah()</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</div>

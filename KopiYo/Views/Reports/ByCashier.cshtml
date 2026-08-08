@@ -1,0 +1,47 @@
+@model KopiYo.ViewModels.Reports.CashierReportViewModel
+@{
+    ViewData["Title"] = "Penjualan per Kasir";
+}
+
+<h1 class="h4 mb-3">Penjualan per Kasir</h1>
+
+<partial name="_RangeFilter" model="Model"/>
+
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+            <tr>
+                <th>Kasir</th>
+                <th class="text-center">Transaksi</th>
+                <th class="text-end">Omzet</th>
+                <th class="text-end">Diskon Diberikan</th>
+                <th class="text-end">Rata-rata/Transaksi</th>
+            </tr>
+            </thead>
+            <tbody>
+            @if (Model.Rows.Count == 0)
+            {
+                <tr>
+                    <td colspan="5" class="text-center text-muted py-4">Tidak ada penjualan di rentang ini.</td>
+                </tr>
+            }
+            @foreach (var r in Model.Rows)
+            {
+                <tr>
+                    <td class="fw-semibold">@r.CashierName</td>
+                    <td class="text-center">@r.OrderCount</td>
+                    <td class="text-end">@r.Revenue.ToRupiah()</td>
+                    <td class="text-end">@r.TotalDiscount.ToRupiah()</td>
+                    <td class="text-end">@r.AverageOrderValue.ToRupiah()</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<p class="text-muted small mt-2">
+    Nama kasir diambil dari snapshot di baris order, bukan dari tabel pengguna &mdash;
+    laporan ini tetap benar walaupun nama atau akunnya sudah diubah.
+</p>

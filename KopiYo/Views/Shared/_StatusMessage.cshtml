@@ -1,0 +1,19 @@
+@*
+    Notifikasi hasil aksi, dibawa lewat TempData supaya selamat melewati
+    redirect pada pola POST-Redirect-GET. Dipanggil sekali di _Layout,
+    jadi setiap halaman dapat gratis.
+*@
+@if (TempData["StatusSuccess"] is string success && !string.IsNullOrEmpty(success))
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @success
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Tutup"></button>
+    </div>
+}
+@if (TempData["StatusError"] is string error && !string.IsNullOrEmpty(error))
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @error
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Tutup"></button>
+    </div>
+}

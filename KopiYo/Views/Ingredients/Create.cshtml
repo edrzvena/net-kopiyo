@@ -1,0 +1,24 @@
+@model KopiYo.ViewModels.Ingredients.IngredientFormViewModel
+@{
+    ViewData["Title"] = "Tambah Bahan";
+}
+
+<h1 class="h4 mb-3">Tambah Bahan Baku</h1>
+
+<div class="alert alert-info py-2 small">
+    Bahan baru selalu dibuat dengan stok <strong>0</strong>.
+    Isi stok awalnya lewat <em>Sesuaikan Stok</em>, supaya jumlah masuk pertamanya pun
+    punya catatan di buku besar.
+</div>
+
+<div class="card">
+    <div class="card-body" style="max-width: 40rem;">
+        <form asp-action="Create" method="post">
+            <partial name="_Form" model="Model"/>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial"/>
+}

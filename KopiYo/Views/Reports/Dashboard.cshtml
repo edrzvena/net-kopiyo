@@ -1,0 +1,115 @@
+@model KopiYo.ViewModels.Reports.DashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard";
+    var maxRevenue = Model.LastSevenDays.Count == 0 ? 0m : Model.LastSevenDays.Max(d => d.Revenue);
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h4 mb-0">Dashboard &mdash; @Model.Day.ToString("dd MMMM yyyy")</h1>
+    <form method="get" class="d-flex gap-2">
+        <input type="date" name="date" class="form-control form-control-sm"
+               value="@Model.Day.ToString("yyyy-MM-dd")"/>
+        <button type="submit" class="btn btn-sm btn-outline-secondary">Lihat</button>
+    </form>
+</div>
+
+@if (Model.LowStockCount > 0)
+{
+    <div class="alert alert-warning py-2">
+        <strong>@Model.LowStockCount bahan</strong> stoknya sudah menipis.
+        <a asp-controller="Ingredients" asp-action="Index" asp-route-lowStockOnly="true">Lihat daftarnya</a>.
+    </div>
+}
+
+<div class="row g-3 mb-4">
+    <div class="col-6 col-lg-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="text-muted small">Omzet Hari Ini</div>
+                <div class="fs-4 fw-bold">@Model.Summary.Revenue.ToRupiah()</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="text-muted small">Jumlah Transaksi</div>
+                <div class="fs-4 fw-bold">@Model.Summary.OrderCount</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="text-muted small">Item Terjual</div>
+                <div class="fs-4 fw-bold">@Model.Summary.ItemCount</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="text-muted small">Rata-rata per Transaksi</div>
+                <div class="fs-4 fw-bold">@Model.Summary.AverageOrderValue.ToRupiah()</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-lg-7">
+        <div class="card h-100">
+            <div class="card-header">7 Hari Terakhir</div>
+            <div class="card-body">
+                @* Bar chart sederhana pakai div — tidak perlu library chart untuk 7 batang. *@
+                @foreach (var d in Model.LastSevenDays)
+                {
+                    var pct = maxRevenue == 0 ? 0 : (int)(d.Revenue / maxRevenue * 100);
+                    <div class="d-flex align-items-center mb-2">
+                        <div class="small text-muted" style="width: 5.5rem;">@d.Day.ToString("ddd dd/MM")</div>
+                        <div class="progress flex-grow-1" style="height: 1.25rem;">
+                            <div class="progress-bar bg-dark" style="width: @pct%"></div>
+                        </div>
+                        <div class="small text-end ps-2" style="width: 7rem;">@d.Revenue.ToRupiah()</div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-5">
+        <div class="card mb-3">
+            <div class="card-header">Metode Pembayaran</div>
+            <ul class="list-group list-group-flush">
+                @if (Model.PaymentBreakdown.Count == 0)
+                {
+                    <li class="list-group-item text-muted text-center">Belum ada transaksi hari ini.</li>
+                }
+                @foreach (var p in Model.PaymentBreakdown)
+                {
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>@p.PaymentMethod <span class="text-muted small">(@p.OrderCount trx)</span></span>
+                        <span class="fw-semibold">@p.Total.ToRupiah()</span>
+                    </li>
+                }
+            </ul>
+        </div>
+
+        <div class="card">
+            <div class="card-header">Menu Terlaris Hari Ini</div>
+            <ul class="list-group list-group-flush">
+                @if (Model.BestSellers.Count == 0)
+                {
+                    <li class="list-group-item text-muted text-center">Belum ada penjualan.</li>
+                }
+                @foreach (var b in Model.BestSellers)
+                {
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>@b.ProductName <span class="text-muted small">&times;@b.QuantitySold</span></span>
+                        <span>@b.Revenue.ToRupiah()</span>
+                    </li>
+                }
+            </ul>
+        </div>
+    </div>
+</div>

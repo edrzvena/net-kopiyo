@@ -1,0 +1,154 @@
+@{
+    ViewData["Title"] = "Kasir";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/pos.css" asp-append-version="true"/>
+    <link rel="stylesheet" href="~/css/receipt.css" asp-append-version="true"/>
+}
+
+@* Token antiforgery untuk fetch(). AutoValidateAntiforgeryToken aktif global,
+   jadi POST /api/pos/checkout tanpa header RequestVerificationToken akan
+   dijawab 400 dengan body kosong — error yang sangat sulit didiagnosis. *@
+@Html.AntiForgeryToken()
+
+<div class="row g-3 pos-screen">
+
+    <!-- Kolom 1: kategori -->
+    <div class="col-6 col-lg-2">
+        <div class="list-group" id="category-list"></div>
+    </div>
+
+    <!-- Kolom 2: katalog produk -->
+    <div class="col-6 col-lg-6">
+        <input type="search" id="product-search" class="form-control mb-2"
+               placeholder="Cari menu..." autocomplete="off" autofocus/>
+        <div class="row g-2" id="product-grid"></div>
+        <p class="text-muted text-center py-4 d-none" id="product-empty">Tidak ada menu yang cocok.</p>
+    </div>
+
+    <!-- Kolom 3: keranjang -->
+    <div class="col-12 col-lg-4">
+        <div class="card cart-card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span class="fw-semibold">Keranjang</span>
+                <button type="button" class="btn btn-sm btn-outline-danger" id="btn-clear">Kosongkan</button>
+            </div>
+
+            <div class="card-body p-0">
+                <div id="cart-lines"></div>
+                <p class="text-muted text-center py-4 mb-0" id="cart-empty">Belum ada item.</p>
+            </div>
+
+            <div class="card-footer">
+                <div class="d-flex justify-content-between small">
+                    <span>Subtotal</span><span id="sum-subtotal">Rp 0</span>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center small my-1">
+                    <span>Diskon</span>
+                    <div class="input-group input-group-sm" style="width: 9rem;">
+                        <input type="number" id="discount-percent" class="form-control text-end"
+                               value="0" min="0" max="100" step="1"/>
+                        <span class="input-group-text">%</span>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-between small text-danger" id="row-discount" hidden>
+                    <span>Potongan</span><span id="sum-discount">Rp 0</span>
+                </div>
+
+                <div class="d-flex justify-content-between small" id="row-service" hidden>
+                    <span>Service <span id="lbl-service-pct"></span></span><span id="sum-service">Rp 0</span>
+                </div>
+                <div class="d-flex justify-content-between small">
+                    <span>Pajak <span id="lbl-tax-pct"></span></span><span id="sum-tax">Rp 0</span>
+                </div>
+
+                <hr class="my-2"/>
+                <div class="d-flex justify-content-between fw-bold fs-5">
+                    <span>TOTAL</span><span id="sum-total">Rp 0</span>
+                </div>
+
+                <div class="btn-group w-100 my-2" role="group" id="payment-methods">
+                    <input type="radio" class="btn-check" name="pay" id="pay-Cash" value="Cash" checked/>
+                    <label class="btn btn-outline-dark btn-sm" for="pay-Cash">Tunai</label>
+                    <input type="radio" class="btn-check" name="pay" id="pay-Qris" value="Qris"/>
+                    <label class="btn btn-outline-dark btn-sm" for="pay-Qris">QRIS</label>
+                    <input type="radio" class="btn-check" name="pay" id="pay-Debit" value="Debit"/>
+                    <label class="btn btn-outline-dark btn-sm" for="pay-Debit">Debit</label>
+                </div>
+
+                <div id="cash-box">
+                    <div class="input-group input-group-sm mb-1">
+                        <span class="input-group-text">Bayar</span>
+                        <input type="number" id="amount-paid" class="form-control text-end" value="0" min="0" step="1000"/>
+                    </div>
+                    <div class="btn-group btn-group-sm w-100 mb-1" id="quick-cash">
+                        <button type="button" class="btn btn-outline-secondary" data-cash="exact">Uang Pas</button>
+                        <button type="button" class="btn btn-outline-secondary" data-cash="50000">50rb</button>
+                        <button type="button" class="btn btn-outline-secondary" data-cash="100000">100rb</button>
+                    </div>
+                    <div class="d-flex justify-content-between fw-semibold">
+                        <span>Kembalian</span><span id="sum-change">Rp 0</span>
+                    </div>
+                </div>
+
+                <button type="button" class="btn btn-success w-100 mt-2 py-2 fw-bold" id="btn-pay" disabled>
+                    BAYAR
+                </button>
+                <div class="alert alert-danger py-2 small mt-2 mb-0 d-none" id="checkout-error"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal pemilihan varian -->
+<div class="modal fade" id="variant-modal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="variant-title"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="variant-groups"></div>
+                <div class="mb-2">
+                    <label class="form-label small">Catatan (opsional)</label>
+                    <input type="text" id="variant-note" class="form-control form-control-sm"
+                           placeholder="mis. less ice"/>
+                </div>
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="text-muted small">Harga satuan</span>
+                    <span class="fs-5 fw-bold" id="variant-price">Rp 0</span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                <button type="button" class="btn btn-dark" id="variant-add">Tambah ke Keranjang</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal struk -->
+<div class="modal fade" id="receipt-modal" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header no-print">
+                <h5 class="modal-title">Transaksi Berhasil</h5>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-warning py-2 small d-none" id="receipt-warnings"></div>
+                <div id="receipt-area"></div>
+            </div>
+            <div class="modal-footer no-print">
+                <button type="button" class="btn btn-outline-dark" id="btn-print">Cetak</button>
+                <button type="button" class="btn btn-dark" id="btn-new">Transaksi Baru</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/pos.js" asp-append-version="true"></script>
+}

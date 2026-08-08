@@ -1,0 +1,67 @@
+@model KopiYo.ViewModels.Orders.ReverseOrderViewModel
+@{
+    var action = Model.IsVoid ? "Void" : "Refund";
+    ViewData["Title"] = action + " Order";
+}
+
+<h1 class="h4 mb-1">@action Order</h1>
+<p class="text-muted">
+    @Model.OrderNumber &mdash; total <strong>@Model.GrandTotal.ToRupiah()</strong>
+</p>
+
+<div class="alert @(Model.IsVoid ? "alert-danger" : "alert-warning")">
+    @if (Model.IsVoid)
+    {
+        <text>
+            <strong>Void</strong> membatalkan transaksi hari ini yang salah input.
+            Omzet berkurang sebesar total order ini, dan bahan yang terpotong dikembalikan.
+        </text>
+    }
+    else
+    {
+        <text>
+            <strong>Refund</strong> mencatat pengembalian uang ke pelanggan.
+            Omzet berkurang sebesar total order ini. Stok bahan
+            <em>tidak</em> dikembalikan secara default, karena minuman yang sudah
+            dibuat biasanya dibuang &mdash; bahannya memang benar-benar terpakai.
+        </text>
+    }
+    <div class="small mt-2">Barisnya tidak dihapus, hanya ditandai. Riwayatnya tetap utuh.</div>
+</div>
+
+<div class="card">
+    <div class="card-body" style="max-width: 34rem;">
+        <form asp-action="Reverse" method="post">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small"></div>
+            <input type="hidden" asp-for="OrderId"/>
+            <input type="hidden" asp-for="OrderNumber"/>
+            <input type="hidden" asp-for="GrandTotal"/>
+            <input type="hidden" asp-for="IsVoid"/>
+
+            <div class="mb-3">
+                <label asp-for="Reason" class="form-label"></label>
+                <input asp-for="Reason" class="form-control" autofocus
+                       placeholder="mis. Salah input menu / Pelanggan batal"/>
+                <span asp-validation-for="Reason" class="text-danger small"></span>
+            </div>
+
+            <div class="form-check mb-3">
+                <input asp-for="RestoreStock" class="form-check-input"/>
+                <label asp-for="RestoreStock" class="form-check-label"></label>
+                <div class="form-text">
+                    Kalau dicentang, semua bahan yang terpotong oleh order ini dikembalikan
+                    sebagai pergerakan stok <em>masuk</em> di buku besar.
+                </div>
+            </div>
+
+            <button type="submit" class="btn @(Model.IsVoid ? "btn-danger" : "btn-warning")">
+                Konfirmasi @action
+            </button>
+            <a class="btn btn-link" asp-action="Details" asp-route-id="@Model.OrderId">Batal</a>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial"/>
+}

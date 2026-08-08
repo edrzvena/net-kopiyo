@@ -1,0 +1,96 @@
+@model KopiYo.ViewModels.Reports.SalesReportViewModel
+@{
+    ViewData["Title"] = "Laporan Penjualan";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h4 mb-0">Laporan Penjualan</h1>
+    <a class="btn btn-outline-success"
+       asp-action="ExportSalesCsv" asp-route-from="@Model.From" asp-route-to="@Model.To">
+        Export CSV
+    </a>
+</div>
+
+<partial name="_RangeFilter" model="Model"/>
+
+<div class="row g-3 mb-4">
+    <div class="col-6 col-lg-3">
+        <div class="card"><div class="card-body">
+            <div class="text-muted small">Total Omzet</div>
+            <div class="fs-5 fw-bold">@Model.Summary.Revenue.ToRupiah()</div>
+        </div></div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card"><div class="card-body">
+            <div class="text-muted small">Transaksi</div>
+            <div class="fs-5 fw-bold">@Model.Summary.OrderCount</div>
+        </div></div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card"><div class="card-body">
+            <div class="text-muted small">Total Diskon</div>
+            <div class="fs-5 fw-bold">@Model.Summary.TotalDiscount.ToRupiah()</div>
+        </div></div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card"><div class="card-body">
+            <div class="text-muted small">Total Pajak</div>
+            <div class="fs-5 fw-bold">@Model.Summary.TotalTax.ToRupiah()</div>
+        </div></div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">Rincian Harian</div>
+            <div class="table-responsive">
+                <table class="table table-sm mb-0">
+                    <thead class="table-light">
+                    <tr>
+                        <th>Tanggal</th>
+                        <th class="text-center">Transaksi</th>
+                        <th class="text-end">Omzet</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var d in Model.Days)
+                    {
+                        <tr class="@(d.OrderCount == 0 ? "text-muted" : "")">
+                            <td>@d.Day.ToString("dddd, dd MMM yyyy")</td>
+                            <td class="text-center">@d.OrderCount</td>
+                            <td class="text-end">@d.Revenue.ToRupiah()</td>
+                        </tr>
+                    }
+                    </tbody>
+                    <tfoot class="table-light fw-bold">
+                    <tr>
+                        <td>Total</td>
+                        <td class="text-center">@Model.Summary.OrderCount</td>
+                        <td class="text-end">@Model.Summary.Revenue.ToRupiah()</td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">Metode Pembayaran</div>
+            <ul class="list-group list-group-flush">
+                @if (Model.PaymentBreakdown.Count == 0)
+                {
+                    <li class="list-group-item text-muted text-center">Tidak ada data.</li>
+                }
+                @foreach (var p in Model.PaymentBreakdown)
+                {
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>@p.PaymentMethod <span class="text-muted small">(@p.OrderCount)</span></span>
+                        <span>@p.Total.ToRupiah()</span>
+                    </li>
+                }
+            </ul>
+        </div>
+    </div>
+</div>

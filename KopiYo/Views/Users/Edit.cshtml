@@ -1,0 +1,51 @@
+@model KopiYo.ViewModels.Users.UserFormViewModel
+@using KopiYo.Common
+@{
+    ViewData["Title"] = "Ubah Pengguna";
+}
+
+<h1 class="h4 mb-3">Ubah Pengguna</h1>
+
+<div class="card">
+    <div class="card-body" style="max-width: 40rem;">
+        <form asp-action="Edit" method="post">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small"></div>
+            <input type="hidden" asp-for="Id"/>
+
+            <div class="mb-3">
+                <label asp-for="Username" class="form-label"></label>
+                <input asp-for="Username" class="form-control" autocomplete="off" autofocus/>
+                <span asp-validation-for="Username" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="FullName" class="form-label"></label>
+                <input asp-for="FullName" class="form-control"/>
+                <span asp-validation-for="FullName" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Role" class="form-label"></label>
+                <select asp-for="Role" class="form-select" asp-items="Html.GetEnumSelectList<UserRole>()"></select>
+            </div>
+
+            <div class="form-check mb-3">
+                <input asp-for="IsActive" class="form-check-input"/>
+                <label asp-for="IsActive" class="form-check-label"></label>
+            </div>
+
+            <div class="alert alert-secondary py-2 small">
+                Password tidak diubah dari layar ini.
+                Gunakan <a asp-action="ResetPassword" asp-route-id="@Model.Id">Reset Password</a>
+                &mdash; supaya form ini tidak pernah tidak sengaja menimpa password dengan nilai kosong.
+            </div>
+
+            <button type="submit" class="btn btn-dark">Simpan</button>
+            <a class="btn btn-link" asp-action="Index">Batal</a>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial"/>
+}

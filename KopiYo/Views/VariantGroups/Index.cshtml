@@ -1,0 +1,98 @@
+@model IReadOnlyList<KopiYo.ViewModels.Variants.VariantGroupListItemViewModel>
+@{
+    ViewData["Title"] = "Varian";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h1 class="h4 mb-0">Grup Varian</h1>
+        <p class="text-muted small mb-0">
+            Grup didefinisikan sekali di sini lalu dipasang ke banyak produk.
+            Mengubah harga "Extra Shot" cukup di satu tempat.
+        </p>
+    </div>
+    <a class="btn btn-dark" asp-action="Create">+ Tambah Grup</a>
+</div>
+
+@foreach (var group in Model)
+{
+    <div class="card mb-3 @(group.IsActive ? "" : "opacity-75")">
+        <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div>
+                <span class="fw-semibold">@group.Name</span>
+                <span class="badge bg-secondary">@(group.SelectionMode == KopiYo.Common.VariantSelectionMode.Single ? "Pilih satu" : "Pilih banyak")</span>
+                @if (group.IsRequired)
+                {
+                    <span class="badge bg-danger">Wajib</span>
+                }
+                @if (!group.IsActive)
+                {
+                    <span class="badge bg-secondary">Nonaktif</span>
+                }
+                <span class="text-muted small ms-2">dipakai @group.ProductCount produk</span>
+            </div>
+            <div class="text-nowrap">
+                <a class="btn btn-sm btn-outline-secondary" asp-action="Edit" asp-route-id="@group.Id">Ubah Grup</a>
+                <a class="btn btn-sm btn-outline-primary" asp-action="CreateOption" asp-route-groupId="@group.Id">+ Opsi</a>
+                <form asp-action="SetActive" method="post" class="d-inline">
+                    <input type="hidden" name="id" value="@group.Id"/>
+                    <input type="hidden" name="isActive" value="@((!group.IsActive).ToString().ToLowerInvariant())"/>
+                    <button type="submit" class="btn btn-sm @(group.IsActive ? "btn-outline-warning" : "btn-outline-success")">
+                        @(group.IsActive ? "Nonaktifkan" : "Aktifkan")
+                    </button>
+                </form>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-sm mb-0 align-middle">
+                <thead class="table-light">
+                <tr>
+                    <th style="width: 5rem;">Urutan</th>
+                    <th>Opsi</th>
+                    <th class="text-end">Tambahan Harga</th>
+                    <th class="text-center">Status</th>
+                    <th class="text-end">Aksi</th>
+                </tr>
+                </thead>
+                <tbody>
+                @if (group.Options.Count == 0)
+                {
+                    <tr>
+                        <td colspan="5" class="text-center text-muted py-3">
+                            Belum ada opsi. Grup tanpa opsi tidak akan muncul di layar kasir.
+                        </td>
+                    </tr>
+                }
+                @foreach (var option in group.Options)
+                {
+                    <tr class="@(option.IsActive ? "" : "text-muted")">
+                        <td>@option.DisplayOrder</td>
+                        <td>@option.Name</td>
+                        <td class="text-end">@(option.PriceDelta == 0 ? "-" : "+" + option.PriceDelta.ToRupiah())</td>
+                        <td class="text-center">
+                            @if (option.IsActive)
+                            {
+                                <span class="badge bg-success">Aktif</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">Nonaktif</span>
+                            }
+                        </td>
+                        <td class="text-end text-nowrap">
+                            <a class="btn btn-sm btn-outline-secondary" asp-action="EditOption" asp-route-id="@option.Id">Ubah</a>
+                            <form asp-action="SetOptionActive" method="post" class="d-inline">
+                                <input type="hidden" name="id" value="@option.Id"/>
+                                <input type="hidden" name="isActive" value="@((!option.IsActive).ToString().ToLowerInvariant())"/>
+                                <button type="submit" class="btn btn-sm @(option.IsActive ? "btn-outline-warning" : "btn-outline-success")">
+                                    @(option.IsActive ? "Nonaktifkan" : "Aktifkan")
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}

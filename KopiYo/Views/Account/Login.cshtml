@@ -1,0 +1,52 @@
+@model KopiYo.ViewModels.Account.LoginViewModel
+@{
+    ViewData["Title"] = "Masuk";
+    Layout = "_LoginLayout";
+}
+
+<div class="card shadow-lg border-0">
+    <div class="card-body p-4">
+        <div class="text-center mb-4">
+            <div style="font-size: 3rem; line-height: 1;">&#9749;</div>
+            <h1 class="h3 mb-0 fw-bold">KopiYo</h1>
+            <p class="text-muted small mb-0">Sistem Kasir Cafe</p>
+        </div>
+
+        <form asp-action="Login" asp-route-returnUrl="@ViewData["ReturnUrl"]" method="post">
+            @* Ringkasan error non-field: "Username atau password salah." muncul di sini. *@
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small" role="alert"></div>
+
+            <div class="mb-3">
+                <label asp-for="Username" class="form-label"></label>
+                <input asp-for="Username" class="form-control" autocomplete="username" autofocus/>
+                <span asp-validation-for="Username" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Password" class="form-label"></label>
+                <input asp-for="Password" class="form-control" autocomplete="current-password"/>
+                <span asp-validation-for="Password" class="text-danger small"></span>
+            </div>
+
+            <div class="form-check mb-3">
+                <input asp-for="RememberMe" class="form-check-input"/>
+                <label asp-for="RememberMe" class="form-check-label small"></label>
+            </div>
+
+            <button type="submit" class="btn btn-dark w-100">Masuk</button>
+        </form>
+    </div>
+</div>
+
+@if (ViewContext.HttpContext.RequestServices
+         .GetRequiredService<IWebHostEnvironment>().IsDevelopment())
+{
+    <div class="text-center text-white-50 small mt-3">
+        Akun bawaan (development): <code class="text-warning">admin / Admin123!</code>
+        &middot; <code class="text-warning">kasir / Kasir123!</code>
+    </div>
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial"/>
+}

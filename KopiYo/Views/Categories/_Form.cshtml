@@ -1,0 +1,34 @@
+@model KopiYo.ViewModels.Categories.CategoryFormViewModel
+@*
+    Satu partial dipakai oleh Create dan Edit. Field-nya identik, jadi
+    menduplikasi markup-nya hanya menciptakan dua tempat untuk lupa update.
+*@
+<div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small"></div>
+<input type="hidden" asp-for="Id"/>
+
+<div class="mb-3">
+    <label asp-for="Name" class="form-label"></label>
+    <input asp-for="Name" class="form-control" autofocus/>
+    <span asp-validation-for="Name" class="text-danger small"></span>
+</div>
+
+<div class="mb-3">
+    <label asp-for="Description" class="form-label"></label>
+    <textarea asp-for="Description" class="form-control" rows="2"></textarea>
+    <span asp-validation-for="Description" class="text-danger small"></span>
+</div>
+
+<div class="mb-3">
+    <label asp-for="DisplayOrder" class="form-label"></label>
+    <input asp-for="DisplayOrder" class="form-control" style="max-width: 8rem;"/>
+    <div class="form-text">Menentukan urutan tombol kategori di layar kasir.</div>
+    <span asp-validation-for="DisplayOrder" class="text-danger small"></span>
+</div>
+
+<div class="form-check mb-3">
+    <input asp-for="IsActive" class="form-check-input"/>
+    <label asp-for="IsActive" class="form-check-label"></label>
+</div>
+
+<button type="submit" class="btn btn-dark">Simpan</button>
+<a class="btn btn-link" asp-action="Index">Batal</a>

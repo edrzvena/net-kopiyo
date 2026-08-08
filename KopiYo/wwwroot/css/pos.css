@@ -1,0 +1,39 @@
+/* Layar kasir */
+
+.pos-screen .product-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 5.5rem;
+    padding: .5rem;
+    text-align: center;
+    line-height: 1.2;
+}
+
+.pos-screen .product-name {
+    font-size: .85rem;
+    font-weight: 600;
+}
+
+.pos-screen .product-price {
+    font-size: .75rem;
+    opacity: .75;
+    margin-top: .25rem;
+}
+
+/* Keranjang menempel saat menggulir daftar produk yang panjang. */
+.cart-card {
+    position: sticky;
+    top: 1rem;
+}
+
+.cart-card .card-body {
+    max-height: 45vh;
+    overflow-y: auto;
+}
+
+#product-grid {
+    max-height: 70vh;
+    overflow-y: auto;
+}

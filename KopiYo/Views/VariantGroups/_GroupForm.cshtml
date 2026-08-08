@@ -1,0 +1,41 @@
+@model KopiYo.ViewModels.Variants.VariantGroupFormViewModel
+@using KopiYo.Common
+
+<div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small"></div>
+<input type="hidden" asp-for="Id"/>
+
+<div class="mb-3">
+    <label asp-for="Name" class="form-label"></label>
+    <input asp-for="Name" class="form-control" autofocus placeholder="mis. Ukuran, Suhu, Extra"/>
+    <span asp-validation-for="Name" class="text-danger small"></span>
+</div>
+
+<div class="mb-3">
+    <label asp-for="SelectionMode" class="form-label"></label>
+    <select asp-for="SelectionMode" class="form-select"
+            asp-items="Html.GetEnumSelectList<VariantSelectionMode>()"></select>
+    <div class="form-text">
+        <strong>Single</strong> tampil sebagai radio button di layar kasir (hanya satu boleh dipilih).
+        <strong>Multiple</strong> tampil sebagai checkbox.
+    </div>
+</div>
+
+<div class="form-check mb-3">
+    <input asp-for="IsRequired" class="form-check-input"/>
+    <label asp-for="IsRequired" class="form-check-label"></label>
+    <div class="form-text">Kalau dicentang, kasir tidak bisa menambah item ke keranjang sebelum memilih opsi di grup ini.</div>
+</div>
+
+<div class="mb-3">
+    <label asp-for="DisplayOrder" class="form-label"></label>
+    <input asp-for="DisplayOrder" class="form-control" style="max-width: 8rem;"/>
+    <span asp-validation-for="DisplayOrder" class="text-danger small"></span>
+</div>
+
+<div class="form-check mb-3">
+    <input asp-for="IsActive" class="form-check-input"/>
+    <label asp-for="IsActive" class="form-check-label"></label>
+</div>
+
+<button type="submit" class="btn btn-dark">Simpan</button>
+<a class="btn btn-link" asp-action="Index">Batal</a>

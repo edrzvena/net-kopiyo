@@ -1,0 +1,22 @@
+@model KopiYo.DTOs.Pos.ReceiptDto
+@{
+    ViewData["Title"] = "Struk " + Model.OrderNumber;
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/receipt.css" asp-append-version="true"/>
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3 no-print">
+    <h1 class="h5 mb-0">Struk @Model.OrderNumber</h1>
+    <div>
+        <button type="button" class="btn btn-outline-dark" onclick="window.print()">Cetak</button>
+        <a class="btn btn-dark" asp-controller="Pos" asp-action="Index">Kembali ke Kasir</a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <partial name="_ReceiptPartial" model="Model"/>
+    </div>
+</div>

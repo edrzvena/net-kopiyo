@@ -1,0 +1,42 @@
+.receipt {
+    font-family: "Consolas", "Courier New", monospace;
+    max-width: 22rem;
+    margin: 0 auto;
+}
+
+/*
+   Saat mencetak, semua elemen disembunyikan kecuali blok struk, lalu struknya
+   dipindah ke pojok kiri atas halaman. Tanpa ini, hasil cetak ikut membawa
+   navbar, tombol, dan latar modal.
+*/
+@media print {
+    body * {
+        visibility: hidden;
+    }
+
+    #receipt, #receipt * {
+        visibility: visible;
+    }
+
+    #receipt {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        max-width: none;
+    }
+
+    .no-print, .modal-header, .modal-footer {
+        display: none !important;
+    }
+
+    .modal, .modal-dialog, .modal-content {
+        position: static !important;
+        border: 0 !important;
+        box-shadow: none !important;
+    }
+
+    .modal-backdrop {
+        display: none !important;
+    }
+}

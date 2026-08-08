@@ -1,0 +1,26 @@
+@model KopiYo.ViewModels.Products.ProductFormViewModel
+@{
+    ViewData["Title"] = "Ubah Produk";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h4 mb-0">Ubah Produk</h1>
+    <a class="btn btn-outline-primary" asp-action="Recipe" asp-route-id="@Model.Id">Atur Resep Bahan</a>
+</div>
+
+<div class="alert alert-info py-2 small">
+    Mengubah harga di sini <strong>hanya berlaku untuk penjualan berikutnya</strong>.
+    Struk dan laporan lama tetap memakai harga saat transaksinya terjadi.
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <form asp-action="Edit" method="post">
+            <partial name="_Form" model="Model"/>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial"/>
+}

@@ -1,0 +1,18 @@
+@model KopiYo.ViewModels.Reports.DateRangeViewModel
+@*
+    Input type="date" mengirim format yyyy-MM-dd, yang persis diharapkan
+    model binding DateOnly di query string — tidak perlu converter apa pun.
+*@
+<form method="get" class="row g-2 mb-3 align-items-end">
+    <div class="col-auto">
+        <label class="form-label small mb-0">Dari</label>
+        <input type="date" name="from" class="form-control" value="@Model.From.ToString("yyyy-MM-dd")"/>
+    </div>
+    <div class="col-auto">
+        <label class="form-label small mb-0">Sampai</label>
+        <input type="date" name="to" class="form-control" value="@Model.To.ToString("yyyy-MM-dd")"/>
+    </div>
+    <div class="col-auto">
+        <button type="submit" class="btn btn-outline-secondary">Terapkan</button>
+    </div>
+</form>

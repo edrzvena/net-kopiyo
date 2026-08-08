@@ -1,5 +1,9 @@
-﻿<!DOCTYPE html>
-<html lang="en">
+@{
+    var isAuthed = User.Identity?.IsAuthenticated == true;
+    var isAdmin = User.IsAdmin();
+}
+<!DOCTYPE html>
+<html lang="id">
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -8,43 +12,116 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css"/>
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true"/>
     <link rel="stylesheet" href="~/KopiYo.styles.css" asp-append-version="true"/>
+    @await RenderSectionAsync("Styles", required: false)
 </head>
 <body>
 <header>
-    <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark border-bottom box-shadow mb-3">
         <div class="container-fluid">
-            <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">KopiYo</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+            <a class="navbar-brand fw-bold" asp-controller="Home" asp-action="Index">
+                &#9749; KopiYo
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse"
                     aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+            <div class="navbar-collapse collapse d-lg-inline-flex justify-content-between">
+                @*
+                    CATATAN PENTING: menyembunyikan link di sini murni soal tampilan,
+                    BUKAN batas keamanan. Batas keamanan yang sebenarnya adalah
+                    [Authorize(Roles = "Admin")] di class controller-nya. Kasir yang
+                    mengetik /Products langsung di address bar tetap ditolak middleware.
+                *@
                 <ul class="navbar-nav flex-grow-1">
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                    </li>
+                    @if (isAuthed)
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Pos" asp-action="Index">Kasir</a>
+                        </li>
+                    }
+                    @if (isAdmin)
+                    {
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Master Data</a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" asp-controller="Categories" asp-action="Index">Kategori</a></li>
+                                <li><a class="dropdown-item" asp-controller="Products" asp-action="Index">Produk</a></li>
+                                <li><a class="dropdown-item" asp-controller="VariantGroups" asp-action="Index">Varian</a></li>
+                                <li>
+                                    <a class="dropdown-item d-flex justify-content-between align-items-center"
+                                       asp-controller="Ingredients" asp-action="Index">
+                                        Bahan Baku
+                                        <span class="badge bg-danger d-none" id="low-stock-badge"></span>
+                                    </a>
+                                </li>
+                                <li><a class="dropdown-item" asp-controller="Users" asp-action="Index">Pengguna</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Laporan</a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" asp-controller="Reports" asp-action="Dashboard">Dashboard</a></li>
+                                <li><a class="dropdown-item" asp-controller="Reports" asp-action="Sales">Penjualan</a></li>
+                                <li><a class="dropdown-item" asp-controller="Reports" asp-action="ByCashier">Per Kasir</a></li>
+                                <li><a class="dropdown-item" asp-controller="Reports" asp-action="BestSellers">Menu Terlaris</a></li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+                                <li><a class="dropdown-item" asp-controller="Orders" asp-action="Index">Riwayat Transaksi</a></li>
+                            </ul>
+                        </li>
+                    }
+                </ul>
+                <ul class="navbar-nav align-items-lg-center">
+                    @if (isAuthed)
+                    {
+                        <li class="nav-item me-2">
+                            <span class="navbar-text">
+                                @User.GetFullName()
+                                <span class="badge @(isAdmin ? "bg-warning text-dark" : "bg-info text-dark")">
+                                    @(isAdmin ? "Admin" : "Kasir")
+                                </span>
+                            </span>
+                        </li>
+                        <li class="nav-item">
+                            @* Logout WAJIB POST — link GET bisa dipicu CSRF dan ter-prefetch browser. *@
+                            <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                                <button type="submit" class="btn btn-sm btn-outline-light">Keluar</button>
+                            </form>
+                        </li>
+                    }
                 </ul>
             </div>
         </div>
     </nav>
 </header>
-<div class="container">
+<div class="container-fluid px-3 px-lg-4">
     <main role="main" class="pb-3">
+        <partial name="_StatusMessage"/>
         @RenderBody()
     </main>
 </div>
 
-<footer class="border-top footer text-muted">
-    <div class="container">
-        &copy; 2026 - KopiYo - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-    </div>
-</footer>
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 <script src="~/js/site.js" asp-append-version="true"></script>
+@if (isAdmin)
+{
+    <script>
+        // Badge stok menipis. Sengaja dimuat setelah halaman siap dan gagal diam-diam:
+        // ini informasi tambahan, bukan sesuatu yang boleh menghambat kerja Admin.
+        fetch('/api/admin/ingredients/low-stock', { headers: { 'Accept': 'application/json' } })
+            .then(r => r.ok ? r.json() : [])
+            .then(items => {
+                if (!items.length) return;
+                const badge = document.getElementById('low-stock-badge');
+                badge.textContent = items.length;
+                badge.title = items.map(i => i.name).join(', ');
+                badge.classList.remove('d-none');
+            })
+            .catch(() => { });
+    </script>
+}
 @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

@@ -1,0 +1,112 @@
+@model KopiYo.ViewModels.Shared.PagedList<KopiYo.ViewModels.Products.ProductListItemViewModel>
+@using Microsoft.AspNetCore.Mvc.Rendering
+@{
+    ViewData["Title"] = "Produk";
+    var categories = ViewData["Categories"] as SelectList;
+    var isActive = ViewData["IsActive"] as bool?;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h4 mb-0">Produk</h1>
+    <a class="btn btn-dark" asp-action="Create">+ Tambah Produk</a>
+</div>
+
+<form method="get" class="row g-2 mb-3">
+    <div class="col-md-4">
+        <input type="text" name="search" value="@ViewData["Search"]" class="form-control"
+               placeholder="Cari nama produk atau SKU..."/>
+    </div>
+    <div class="col-md-3">
+        <select name="categoryId" class="form-select" asp-items="categories">
+            <option value="">Semua kategori</option>
+        </select>
+    </div>
+    <div class="col-md-3">
+        <select name="isActive" class="form-select">
+            <option value="">Semua status</option>
+            <option value="true" selected="@(isActive == true)">Hanya aktif</option>
+            <option value="false" selected="@(isActive == false)">Hanya nonaktif</option>
+        </select>
+    </div>
+    <div class="col-md-2 d-grid">
+        <button type="submit" class="btn btn-outline-secondary">Filter</button>
+    </div>
+</form>
+
+<div class="card mb-3">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+            <tr>
+                <th>Produk</th>
+                <th>Kategori</th>
+                <th class="text-end">Harga Dasar</th>
+                <th class="text-center">Varian</th>
+                <th class="text-center">Resep</th>
+                <th class="text-center">Status</th>
+                <th class="text-end">Aksi</th>
+            </tr>
+            </thead>
+            <tbody>
+            @if (Model.Items.Count == 0)
+            {
+                <tr>
+                    <td colspan="7" class="text-center text-muted py-4">Tidak ada produk yang cocok.</td>
+                </tr>
+            }
+            @foreach (var item in Model.Items)
+            {
+                <tr class="@(item.IsActive ? "" : "text-muted")">
+                    <td>
+                        <div class="fw-semibold">@item.Name</div>
+                        @if (!string.IsNullOrEmpty(item.Sku))
+                        {
+                            <div class="small text-muted">SKU: @item.Sku</div>
+                        }
+                    </td>
+                    <td>@item.CategoryName</td>
+                    <td class="text-end">@item.BasePrice.ToRupiah()</td>
+                    <td class="text-center">
+                        <span class="badge bg-light text-dark">@item.VariantGroupCount grup</span>
+                    </td>
+                    <td class="text-center">
+                        @if (item.RecipeItemCount == 0)
+                        {
+                            <span class="badge bg-warning text-dark" title="Penjualan produk ini tidak memotong stok bahan">
+                                belum ada
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-light text-dark">@item.RecipeItemCount bahan</span>
+                        }
+                    </td>
+                    <td class="text-center">
+                        @if (item.IsActive)
+                        {
+                            <span class="badge bg-success">Aktif</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">Nonaktif</span>
+                        }
+                    </td>
+                    <td class="text-end text-nowrap">
+                        <a class="btn btn-sm btn-outline-secondary" asp-action="Edit" asp-route-id="@item.Id">Ubah</a>
+                        <a class="btn btn-sm btn-outline-primary" asp-controller="Products" asp-action="Recipe" asp-route-id="@item.Id">Resep</a>
+                        <form asp-action="SetActive" method="post" class="d-inline">
+                            <input type="hidden" name="id" value="@item.Id"/>
+                            <input type="hidden" name="isActive" value="@((!item.IsActive).ToString().ToLowerInvariant())"/>
+                            <button type="submit" class="btn btn-sm @(item.IsActive ? "btn-outline-warning" : "btn-outline-success")">
+                                @(item.IsActive ? "Nonaktifkan" : "Aktifkan")
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<partial name="_Pagination" model="Model"/>

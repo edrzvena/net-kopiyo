@@ -1,0 +1,36 @@
+@model KopiYo.ViewModels.Shared.IPagedListMetadata
+@{
+    // Menjaga semua parameter query yang sedang aktif (search, filter kategori, dsb)
+    // saat pindah halaman. Tanpa ini, klik "halaman 2" akan mereset filter.
+    var query = ViewContext.HttpContext.Request.Query
+        .Where(q => q.Key != "page")
+        .ToDictionary(q => q.Key, q => q.Value.ToString());
+
+    string PageUrl(int page)
+    {
+        var parts = query.Select(kv => $"{Uri.EscapeDataString(kv.Key)}={Uri.EscapeDataString(kv.Value)}").ToList();
+        parts.Add($"page={page}");
+        return "?" + string.Join("&", parts);
+    }
+}
+
+@if (Model.TotalPages > 1)
+{
+    <nav aria-label="Navigasi halaman">
+        <ul class="pagination pagination-sm">
+            <li class="page-item @(Model.HasPrevious ? "" : "disabled")">
+                <a class="page-link" href="@PageUrl(Model.Page - 1)">&laquo;</a>
+            </li>
+            @for (var p = Math.Max(1, Model.Page - 2); p <= Math.Min(Model.TotalPages, Model.Page + 2); p++)
+            {
+                <li class="page-item @(p == Model.Page ? "active" : "")">
+                    <a class="page-link" href="@PageUrl(p)">@p</a>
+                </li>
+            }
+            <li class="page-item @(Model.HasNext ? "" : "disabled")">
+                <a class="page-link" href="@PageUrl(Model.Page + 1)">&raquo;</a>
+            </li>
+        </ul>
+    </nav>
+    <p class="text-muted small">Total @Model.TotalItems data, halaman @Model.Page dari @Model.TotalPages.</p>
+}

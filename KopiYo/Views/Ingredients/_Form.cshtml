@@ -1,0 +1,55 @@
+@model KopiYo.ViewModels.Ingredients.IngredientFormViewModel
+@using KopiYo.Common
+
+<div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small"></div>
+<input type="hidden" asp-for="Id"/>
+
+<div class="mb-3">
+    <label asp-for="Name" class="form-label"></label>
+    <input asp-for="Name" class="form-control" autofocus/>
+    <span asp-validation-for="Name" class="text-danger small"></span>
+</div>
+
+<div class="mb-3">
+    <label asp-for="Unit" class="form-label"></label>
+    <select asp-for="Unit" class="form-select" asp-items="Html.GetEnumSelectList<UnitOfMeasure>()"
+            style="max-width: 12rem;"></select>
+    <div class="form-text">Satuan yang dipakai di resep. Gram/Ml untuk bahan curah, Pcs untuk barang hitungan.</div>
+</div>
+
+@if (Model.Id != 0)
+{
+    <div class="mb-3">
+        <label class="form-label">Stok Saat Ini</label>
+        <input class="form-control-plaintext fw-semibold" readonly value="@Model.CurrentStock.ToQty() @Model.Unit"/>
+        <div class="form-text">
+            Stok tidak bisa diubah dari sini &mdash; hanya lewat
+            <a asp-action="Adjust" asp-route-id="@Model.Id">Sesuaikan Stok</a>,
+            supaya setiap perubahannya punya catatan alasan di buku besar.
+        </div>
+    </div>
+}
+
+<div class="mb-3">
+    <label asp-for="MinStockQty" class="form-label"></label>
+    <input asp-for="MinStockQty" class="form-control" type="number" step="0.001" min="0" style="max-width: 12rem;"/>
+    <div class="form-text">Kalau stok turun sampai angka ini, bahan ditandai "menipis".</div>
+    <span asp-validation-for="MinStockQty" class="text-danger small"></span>
+</div>
+
+<div class="mb-3">
+    <label asp-for="CostPerUnit" class="form-label"></label>
+    <div class="input-group" style="max-width: 14rem;">
+        <span class="input-group-text">Rp</span>
+        <input asp-for="CostPerUnit" class="form-control" type="number" step="1" min="0"/>
+    </div>
+    <span asp-validation-for="CostPerUnit" class="text-danger small"></span>
+</div>
+
+<div class="form-check mb-3">
+    <input asp-for="IsActive" class="form-check-input"/>
+    <label asp-for="IsActive" class="form-check-label"></label>
+</div>
+
+<button type="submit" class="btn btn-dark">Simpan</button>
+<a class="btn btn-link" asp-action="Index">Batal</a>

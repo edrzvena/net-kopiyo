@@ -1,0 +1,98 @@
+@model KopiYo.ViewModels.Shared.PagedList<KopiYo.ViewModels.Ingredients.IngredientListItemViewModel>
+@{
+    ViewData["Title"] = "Bahan Baku";
+    var lowOnly = (bool)(ViewData["LowStockOnly"] ?? false);
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h1 class="h4 mb-0">Bahan Baku</h1>
+        <p class="text-muted small mb-0">
+            Stok berkurang otomatis setiap penjualan, sesuai resep tiap produk.
+            Kolom stok tidak bisa diketik langsung &mdash; gunakan <em>Sesuaikan Stok</em>
+            supaya setiap perubahan tercatat di buku besar.
+        </p>
+    </div>
+    <div>
+        <a class="btn btn-outline-secondary" asp-action="Movements">Buku Besar Stok</a>
+        <a class="btn btn-dark" asp-action="Create">+ Tambah Bahan</a>
+    </div>
+</div>
+
+<form method="get" class="row g-2 mb-3">
+    <div class="col-md-4">
+        <input type="text" name="search" value="@ViewData["Search"]" class="form-control" placeholder="Cari bahan..."/>
+    </div>
+    <div class="col-md-3 d-flex align-items-center">
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="lowStockOnly" value="true"
+                   id="low" checked="@lowOnly"/>
+            <label class="form-check-label" for="low">Hanya stok menipis</label>
+        </div>
+    </div>
+    <div class="col-md-2 d-grid">
+        <button type="submit" class="btn btn-outline-secondary">Filter</button>
+    </div>
+</form>
+
+<div class="card mb-3">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+            <tr>
+                <th>Bahan</th>
+                <th class="text-end">Stok</th>
+                <th class="text-end">Min.</th>
+                <th class="text-end">Harga/Satuan</th>
+                <th class="text-end">Nilai Stok</th>
+                <th class="text-center">Dipakai</th>
+                <th class="text-center">Status</th>
+                <th class="text-end">Aksi</th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var item in Model.Items)
+            {
+                <tr class="@(item.IsActive ? "" : "text-muted") @(item.IsLowStock ? "table-warning" : "")">
+                    <td class="fw-semibold">@item.Name</td>
+                    <td class="text-end">
+                        @item.StockQty.ToQty() <span class="text-muted small">@item.Unit</span>
+                        @if (item.IsLowStock)
+                        {
+                            <span class="badge bg-danger ms-1">menipis</span>
+                        }
+                    </td>
+                    <td class="text-end text-muted">@item.MinStockQty.ToQty()</td>
+                    <td class="text-end">@item.CostPerUnit.ToRupiah()</td>
+                    <td class="text-end">@item.StockValue.ToRupiah()</td>
+                    <td class="text-center">@item.UsedInProducts resep</td>
+                    <td class="text-center">
+                        @if (item.IsActive)
+                        {
+                            <span class="badge bg-success">Aktif</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">Nonaktif</span>
+                        }
+                    </td>
+                    <td class="text-end text-nowrap">
+                        <a class="btn btn-sm btn-outline-primary" asp-action="Adjust" asp-route-id="@item.Id">Sesuaikan Stok</a>
+                        <a class="btn btn-sm btn-outline-secondary" asp-action="Edit" asp-route-id="@item.Id">Ubah</a>
+                        <a class="btn btn-sm btn-outline-secondary" asp-action="Movements" asp-route-ingredientId="@item.Id">Riwayat</a>
+                        <form asp-action="SetActive" method="post" class="d-inline">
+                            <input type="hidden" name="id" value="@item.Id"/>
+                            <input type="hidden" name="isActive" value="@((!item.IsActive).ToString().ToLowerInvariant())"/>
+                            <button type="submit" class="btn btn-sm @(item.IsActive ? "btn-outline-warning" : "btn-outline-success")">
+                                @(item.IsActive ? "Nonaktifkan" : "Aktifkan")
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<partial name="_Pagination" model="Model"/>

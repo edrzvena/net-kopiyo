@@ -1,0 +1,141 @@
+@model KopiYo.ViewModels.Orders.OrderDetailsViewModel
+@using KopiYo.Common
+@{
+    ViewData["Title"] = "Order " + Model.OrderNumber;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+    <div>
+        <h1 class="h4 mb-0">@Model.OrderNumber</h1>
+        <div class="text-muted small">
+            @Model.OrderDate.ToString("dddd, dd MMMM yyyy HH:mm:ss") &middot; Kasir: @Model.CashierName
+        </div>
+    </div>
+    <div class="text-nowrap">
+        <a class="btn btn-outline-dark" asp-action="Receipt" asp-route-id="@Model.Id">Lihat Struk</a>
+        @if (Model.CanVoid)
+        {
+            <a class="btn btn-outline-danger" asp-action="Reverse" asp-route-id="@Model.Id" asp-route-isVoid="true">Void</a>
+        }
+        @if (Model.CanRefund)
+        {
+            <a class="btn btn-outline-warning" asp-action="Reverse" asp-route-id="@Model.Id" asp-route-isVoid="false">Refund</a>
+        }
+        <a class="btn btn-link" asp-action="Index">Kembali</a>
+    </div>
+</div>
+
+@if (Model.Status != OrderStatus.Paid)
+{
+    <div class="alert alert-danger">
+        <strong>Order ini @(Model.Status == OrderStatus.Voided ? "DIBATALKAN" : "DI-REFUND").</strong><br/>
+        @Model.ReversedAt?.ToString("dd/MM/yyyy HH:mm") oleh @Model.ReversedByName &mdash; @Model.ReversalReason
+        <div class="small mt-1">Order ini tidak lagi dihitung dalam laporan omzet.</div>
+    </div>
+}
+
+<div class="row g-3">
+    <div class="col-lg-7">
+        <div class="card">
+            <div class="card-header">Item</div>
+            <div class="table-responsive">
+                <table class="table table-sm mb-0">
+                    <thead class="table-light">
+                    <tr>
+                        <th>Produk</th>
+                        <th class="text-center">Qty</th>
+                        <th class="text-end">Harga Satuan</th>
+                        <th class="text-end">Subtotal</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var l in Model.Lines)
+                    {
+                        <tr>
+                            <td>
+                                <div>@l.ProductName</div>
+                                @if (!string.IsNullOrEmpty(l.VariantDescription))
+                                {
+                                    <div class="text-muted small">@l.VariantDescription</div>
+                                }
+                                @if (!string.IsNullOrEmpty(l.Note))
+                                {
+                                    <div class="text-muted small fst-italic">* @l.Note</div>
+                                }
+                                <div class="text-muted" style="font-size:.7rem">Kategori saat itu: @l.CategoryName</div>
+                            </td>
+                            <td class="text-center">@l.Quantity</td>
+                            <td class="text-end">@l.UnitPrice.ToRupiah()</td>
+                            <td class="text-end">@l.LineTotal.ToRupiah()</td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-5">
+        <div class="card mb-3">
+            <div class="card-header">Rincian Uang</div>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item d-flex justify-content-between"><span>Subtotal</span><span>@Model.Subtotal.ToRupiah()</span></li>
+                @if (Model.DiscountAmount > 0)
+                {
+                    <li class="list-group-item d-flex justify-content-between text-danger"><span>Diskon</span><span>-@Model.DiscountAmount.ToRupiah()</span></li>
+                }
+                @if (Model.ServiceChargeAmount > 0)
+                {
+                    <li class="list-group-item d-flex justify-content-between"><span>Service @Model.ServiceChargePercent%</span><span>@Model.ServiceChargeAmount.ToRupiah()</span></li>
+                }
+                <li class="list-group-item d-flex justify-content-between"><span>Pajak @Model.TaxPercent%</span><span>@Model.TaxAmount.ToRupiah()</span></li>
+                <li class="list-group-item d-flex justify-content-between fw-bold"><span>TOTAL</span><span>@Model.GrandTotal.ToRupiah()</span></li>
+                <li class="list-group-item d-flex justify-content-between"><span>Bayar (@Model.PaymentMethod)</span><span>@Model.AmountPaid.ToRupiah()</span></li>
+                <li class="list-group-item d-flex justify-content-between"><span>Kembalian</span><span>@Model.ChangeAmount.ToRupiah()</span></li>
+            </ul>
+            <div class="card-footer text-muted small">
+                Persentase pajak dan service di atas adalah nilai yang berlaku
+                <em>saat transaksi ini terjadi</em>, bukan yang berlaku sekarang.
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">Pergerakan Stok Bahan</div>
+            <div class="table-responsive">
+                <table class="table table-sm mb-0">
+                    <thead class="table-light">
+                    <tr>
+                        <th>Bahan</th>
+                        <th class="text-center">Jenis</th>
+                        <th class="text-end">Jumlah</th>
+                        <th class="text-end">Sisa</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @if (Model.StockMovements.Count == 0)
+                    {
+                        <tr>
+                            <td colspan="4" class="text-center text-muted py-3">
+                                Tidak ada bahan yang terpotong (produk tanpa resep).
+                            </td>
+                        </tr>
+                    }
+                    @foreach (var m in Model.StockMovements)
+                    {
+                        <tr>
+                            <td class="small">@m.IngredientName</td>
+                            <td class="text-center">
+                                <span class="badge @(m.MovementType == StockMovementType.Out ? "bg-danger" : "bg-success")">
+                                    @(m.MovementType == StockMovementType.Out ? "Keluar" : "Masuk")
+                                </span>
+                            </td>
+                            <td class="text-end small">@m.Quantity.ToQty() @m.UnitLabel</td>
+                            <td class="text-end small">@m.StockAfter.ToQty()</td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

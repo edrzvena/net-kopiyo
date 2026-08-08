@@ -1,0 +1,62 @@
+@model KopiYo.ViewModels.Users.UserFormViewModel
+@using KopiYo.Common
+@{
+    ViewData["Title"] = "Tambah Pengguna";
+}
+
+<h1 class="h4 mb-3">Tambah Pengguna</h1>
+
+<div class="card">
+    <div class="card-body" style="max-width: 40rem;">
+        <form asp-action="Create" method="post">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small"></div>
+
+            <div class="mb-3">
+                <label asp-for="Username" class="form-label"></label>
+                <input asp-for="Username" class="form-control" autocomplete="off" autofocus/>
+                <span asp-validation-for="Username" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="FullName" class="form-label"></label>
+                <input asp-for="FullName" class="form-control"/>
+                <div class="form-text">Nama ini yang tercetak di struk sebagai nama kasir.</div>
+                <span asp-validation-for="FullName" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Role" class="form-label"></label>
+                <select asp-for="Role" class="form-select" asp-items="Html.GetEnumSelectList<UserRole>()"></select>
+                <div class="form-text">
+                    <strong>Admin</strong>: CRUD master data, laporan, stok, void/refund.<br/>
+                    <strong>Kasir</strong>: hanya layar kasir dan input penjualan &mdash; tidak bisa mengubah data apa pun.
+                </div>
+            </div>
+
+            <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                    <label asp-for="Password" class="form-label"></label>
+                    <input asp-for="Password" class="form-control" autocomplete="new-password"/>
+                    <span asp-validation-for="Password" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="ConfirmPassword" class="form-label"></label>
+                    <input asp-for="ConfirmPassword" class="form-control" autocomplete="new-password"/>
+                    <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="form-check mb-3">
+                <input asp-for="IsActive" class="form-check-input"/>
+                <label asp-for="IsActive" class="form-check-label"></label>
+            </div>
+
+            <button type="submit" class="btn btn-dark">Simpan</button>
+            <a class="btn btn-link" asp-action="Index">Batal</a>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial"/>
+}
