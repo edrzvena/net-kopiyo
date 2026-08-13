@@ -17,7 +17,10 @@
     --k-surface: #ffffff;
     --k-ink: #1a1614;
     --k-ink-soft: #57504b;
-    --k-muted: #8a817b;
+    /* Kontras 5.2:1 di atas putih. Nada yang lebih terang (#8a817b) terlihat
+       lebih elegan tapi hanya 3.3:1 — gagal WCAG AA, dan .text-muted dipakai
+       67 kali di aplikasi ini, termasuk untuk deskripsi dan satuan. */
+    --k-muted: #6f6862;
     --k-line: #e8e4e0;
     --k-line-strong: #d9d3cd;
 
@@ -177,8 +180,10 @@ a {
     --bs-btn-color: rgba(255, 255, 255, .85);
 }
 
-/* Peran pengguna: teks kecil, bukan badge warna-warni. */
-.app-navbar .badge {
+/* Peran pengguna: chip transparan, bukan badge warna-warni. Selektornya
+   sengaja tiga tingkat agar menang atas .badge.bg-warning di bagian Badge —
+   spesifisitas sama akan dimenangkan aturan yang ditulis belakangan. */
+.app-navbar .navbar-text .badge {
     background: rgba(255, 255, 255, .14) !important;
     color: rgba(255, 255, 255, .85) !important;
     font-weight: 500;
@@ -349,7 +354,7 @@ a {
 }
 
 .form-control::placeholder {
-    color: #b4aca6;
+    color: #9c948e;
 }
 
 .form-label {
@@ -588,6 +593,82 @@ a {
 
 .input-validation-error {
     border-color: var(--k-danger) !important;
+}
+
+/* Varian warna Bootstrap yang tetap dipakai view ----------------------- */
+
+/* Kalau satu class Bootstrap dibiarkan tanpa definisi di sini, ia jatuh ke
+   warna bawaan (biru #0d6efd) dan langsung terlihat asing. Daftar di bawah
+   adalah semua sisa yang benar-benar muncul di Views/ dan pos.js. */
+
+.btn-outline-primary {
+    --bs-btn-color: var(--k-accent-ink);
+    --bs-btn-border-color: var(--k-line-strong);
+    --bs-btn-hover-bg: var(--k-accent-soft);
+    --bs-btn-hover-color: var(--k-accent-ink);
+    --bs-btn-hover-border-color: var(--k-accent);
+    --bs-btn-active-bg: var(--k-accent);
+    --bs-btn-active-color: #fff;
+    --bs-btn-active-border-color: var(--k-accent);
+}
+
+.btn-link {
+    --bs-btn-color: var(--k-accent-ink);
+    --bs-btn-hover-color: var(--k-ink);
+    --bs-btn-font-weight: 500;
+    text-decoration: none;
+}
+
+.btn-link:hover {
+    text-decoration: underline;
+    text-underline-offset: .15em;
+}
+
+.btn-warning {
+    --bs-btn-bg: var(--k-warning);
+    --bs-btn-border-color: var(--k-warning);
+    --bs-btn-color: #fff;
+    --bs-btn-hover-bg: #7a5312;
+    --bs-btn-hover-border-color: #7a5312;
+    --bs-btn-hover-color: #fff;
+}
+
+.btn-danger {
+    --bs-btn-bg: var(--k-danger);
+    --bs-btn-border-color: var(--k-danger);
+    --bs-btn-hover-bg: #963127;
+    --bs-btn-hover-border-color: #963127;
+}
+
+.btn-light {
+    --bs-btn-bg: var(--k-canvas);
+    --bs-btn-border-color: var(--k-line-strong);
+    --bs-btn-color: var(--k-ink);
+}
+
+/* Chip netral: dipakai untuk metode bayar, jumlah grup varian, jumlah bahan.
+   text-dark ikut tertulis di markup, jadi warnanya perlu !important. */
+.badge.bg-light {
+    background: var(--k-line) !important;
+    color: var(--k-ink-soft) !important;
+}
+
+.badge.bg-primary {
+    background: var(--k-accent-soft) !important;
+    color: var(--k-accent-ink) !important;
+}
+
+.alert-secondary {
+    background: var(--k-canvas);
+    border-color: var(--k-line);
+    color: var(--k-ink-soft);
+}
+
+/* Baris bahan yang stoknya menipis. */
+.table > tbody > tr.table-warning > * {
+    --bs-table-bg: var(--k-warning-soft);
+    --bs-table-color: var(--k-ink);
+    box-shadow: none;
 }
 
 /* Halaman login -------------------------------------------------------- */
