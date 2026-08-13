@@ -1,39 +1,136 @@
 /* Layar kasir */
 
+/* Tinggi tetap: kolom kategori, katalog, dan keranjang tidak boleh saling
+   mendorong saat isinya berubah — kasir menghafal posisi tombol. */
+#product-grid {
+    max-height: calc(100vh - 15rem);
+    overflow-y: auto;
+    padding-right: .25rem;
+    align-content: start;
+}
+
+.pos-screen .list-group-item-action {
+    border-radius: var(--k-radius-sm) !important;
+    border: 1px solid transparent;
+    margin-bottom: .25rem;
+    padding: .5rem .75rem;
+    font-size: .9375rem;
+    font-weight: 500;
+    color: var(--k-ink-soft);
+}
+
+.pos-screen .list-group-item-action:hover {
+    background: var(--k-surface);
+    border-color: var(--k-line);
+    color: var(--k-ink);
+}
+
+.pos-screen .list-group-item-action.active {
+    background: var(--k-ink);
+    border-color: var(--k-ink);
+    color: #fff;
+}
+
+/* Kartu produk ---------------------------------------------------------- */
+
 .pos-screen .product-card {
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     min-height: 5.5rem;
-    padding: .5rem;
+    padding: .625rem .5rem;
     text-align: center;
-    line-height: 1.2;
+    line-height: 1.25;
+    background: var(--k-surface);
+    border: 1px solid var(--k-line);
+    border-radius: var(--k-radius);
+    color: var(--k-ink);
+    transition: border-color .12s ease, background-color .12s ease, transform .06s ease;
+}
+
+.pos-screen .product-card:hover {
+    background: var(--k-surface);
+    border-color: var(--k-ink);
+    color: var(--k-ink);
+}
+
+/* Umpan balik sentuh: kartu ditekan sedikit, bukan berubah warna drastis. */
+.pos-screen .product-card:active {
+    transform: scale(.985);
+    background: var(--k-canvas);
+    border-color: var(--k-ink);
+    color: var(--k-ink);
 }
 
 .pos-screen .product-name {
-    font-size: .85rem;
-    font-weight: 600;
+    font-size: .875rem;
+    font-weight: 500;
+    letter-spacing: -.01em;
 }
 
 .pos-screen .product-price {
     font-size: .75rem;
-    opacity: .75;
+    color: var(--k-muted);
     margin-top: .25rem;
+    opacity: 1;
 }
 
-/* Keranjang menempel saat menggulir daftar produk yang panjang. */
+/* Keranjang ------------------------------------------------------------- */
+
+/* Menempel saat menggulir daftar produk yang panjang. */
 .cart-card {
     position: sticky;
     top: 1rem;
 }
 
 .cart-card .card-body {
-    max-height: 45vh;
+    max-height: 42vh;
     overflow-y: auto;
 }
 
-#product-grid {
-    max-height: 70vh;
-    overflow-y: auto;
+.cart-card .cart-line {
+    border-color: var(--k-line) !important;
+    padding: .625rem .875rem !important;
+}
+
+.cart-card .cart-line:last-child {
+    border-bottom: 0 !important;
+}
+
+.cart-card .line-name {
+    letter-spacing: -.01em;
+}
+
+.cart-card .line-qty.btn {
+    background: transparent;
+    border-color: var(--k-line-strong);
+    color: var(--k-ink);
+    opacity: 1;
+    min-width: 2.25rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.cart-card .card-footer {
+    padding: .875rem;
+}
+
+/* Baris rincian uang: label redup, angka tegas. */
+.cart-card .card-footer .d-flex > span:first-child {
+    color: var(--k-ink-soft);
+}
+
+.cart-card #sum-total {
+    letter-spacing: -.03em;
+}
+
+.cart-card #btn-pay {
+    letter-spacing: .06em;
+    font-size: .9375rem;
+}
+
+/* Pemilih metode bayar: satu blok rapat, bukan tiga tombol terpisah. */
+#payment-methods .btn {
+    --bs-btn-border-color: var(--k-line-strong);
+    font-weight: 500;
 }
