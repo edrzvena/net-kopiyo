@@ -48,9 +48,10 @@
 @if (ViewContext.HttpContext.RequestServices
          .GetRequiredService<IWebHostEnvironment>().IsDevelopment())
 {
-    <div class="text-center text-white-50 small mt-3">
-        Akun bawaan (development): <code class="text-warning">admin / Admin123!</code>
-        &middot; <code class="text-warning">kasir / Kasir123!</code>
+    @* Latar login sekarang terang, jadi text-white-50/text-warning tidak terbaca lagi. *@
+    <div class="text-center text-muted small mt-3">
+        Akun bawaan (development): <code>admin / Admin123!</code>
+        &middot; <code>kasir / Kasir123!</code>
     </div>
 }
 
