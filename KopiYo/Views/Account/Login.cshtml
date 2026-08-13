@@ -4,12 +4,19 @@
     Layout = "_LoginLayout";
 }
 
-<div class="card shadow-lg border-0">
-    <div class="card-body p-4">
-        <div class="text-center mb-4">
-            <div style="font-size: 3rem; line-height: 1;">&#9749;</div>
-            <h1 class="h3 mb-0 fw-bold">KopiYo</h1>
-            <p class="text-muted small mb-0">Sistem Kasir Cafe</p>
+<div class="login-card">
+    <div class="card-body p-4 p-lg-4">
+        <div class="mb-4">
+            <div class="login-mark mb-3">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M4 9h13v6a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5V9Z"/>
+                    <path d="M17 10h1.5a2.5 2.5 0 0 1 0 5H17"/>
+                    <path d="M8 2.5v2.6M12 2.5v2.6"/>
+                </svg>
+            </div>
+            <h1 class="h5 mb-1">Masuk ke KopiYo</h1>
+            <p class="text-muted small mb-0">Sistem kasir cafe</p>
         </div>
 
         <form asp-action="Login" asp-route-returnUrl="@ViewData["ReturnUrl"]" method="post">
@@ -33,7 +40,7 @@
                 <label asp-for="RememberMe" class="form-check-label small"></label>
             </div>
 
-            <button type="submit" class="btn btn-dark w-100">Masuk</button>
+            <button type="submit" class="btn btn-dark w-100 py-2">Masuk</button>
         </form>
     </div>
 </div>

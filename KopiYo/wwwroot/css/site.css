@@ -1,31 +1,614 @@
+/*
+   Tema KopiYo — lapisan tipis di atas Bootstrap 5.3.
+
+   Disusun sebagai override token, bukan komponen baru. Alasannya: markup di
+   .cshtml dan yang di-generate pos.js tetap memakai class Bootstrap standar
+   (card, btn-dark, badge bg-success, table). Kalau tema ditulis sebagai class
+   sendiri, setiap view harus disentuh dan pos.js ikut berubah.
+
+   Urutan: 1) token  2) dasar  3) komponen.
+*/
+
+/* ── 1. Token ─────────────────────────────────────────────────────────── */
+
+:root {
+    /* Netral hangat — abu-abu murni terasa dingin untuk aplikasi cafe. */
+    --k-canvas: #f7f5f3;
+    --k-surface: #ffffff;
+    --k-ink: #1a1614;
+    --k-ink-soft: #57504b;
+    --k-muted: #8a817b;
+    --k-line: #e8e4e0;
+    --k-line-strong: #d9d3cd;
+
+    /* Aksen karamel dipakai hemat: fokus, link, state aktif. Aksi utama
+       tetap hitam (btn-dark) supaya tombol BAYAR jadi satu-satunya sorotan. */
+    --k-accent: #8a5a3b;
+    --k-accent-ink: #6f4830;
+    --k-accent-soft: #f3ece6;
+
+    --k-success: #2e7d5b;
+    --k-success-soft: #e8f2ed;
+    --k-danger: #b03a2e;
+    --k-danger-soft: #fbeae7;
+    --k-warning: #8f6215;
+    --k-warning-soft: #f9f0dd;
+    --k-info: #2f6e8f;
+    --k-info-soft: #e8f0f5;
+
+    --k-radius: .625rem;
+    --k-radius-sm: .4375rem;
+
+    /* Satu-satunya bayangan di seluruh aplikasi: untuk elemen yang benar-benar
+       mengambang (dropdown, modal). Kartu cukup pakai garis. */
+    --k-shadow-pop: 0 .5rem 1.5rem rgba(26, 22, 20, .1), 0 0 0 1px rgba(26, 22, 20, .06);
+
+    /* Pemetaan ke variabel Bootstrap. */
+    --bs-body-bg: var(--k-canvas);
+    --bs-body-color: var(--k-ink);
+    --bs-secondary-color: var(--k-muted);
+    --bs-border-color: var(--k-line);
+    --bs-border-color-translucent: var(--k-line);
+    --bs-emphasis-color: var(--k-ink);
+    --bs-border-radius: var(--k-radius);
+    --bs-border-radius-sm: var(--k-radius-sm);
+    --bs-border-radius-lg: .875rem;
+    --bs-link-color: var(--k-accent-ink);
+    --bs-link-hover-color: var(--k-ink);
+    --bs-font-sans-serif: "Segoe UI Variable Text", "Segoe UI", ui-sans-serif, system-ui,
+        -apple-system, "Helvetica Neue", Arial, sans-serif;
+
+    /* Badge & alert membaca *-rgb, jadi override di sini otomatis menyebar. */
+    --bs-success-rgb: 46, 125, 91;
+    --bs-danger-rgb: 176, 58, 46;
+    --bs-warning-rgb: 143, 98, 21;
+    --bs-info-rgb: 47, 110, 143;
+    --bs-secondary-rgb: 138, 129, 123;
+    --bs-dark-rgb: 26, 22, 20;
+}
+
+/* ── 2. Dasar ─────────────────────────────────────────────────────────── */
+
 html {
-  font-size: 14px;
+    font-size: 15px;
 }
 
 @media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
-}
-
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-  position: relative;
-  min-height: 100%;
+    html {
+        font-size: 16px;
+    }
 }
 
 body {
-  margin-bottom: 60px;
+    /* Angka rata kolom — kritis untuk daftar harga dan tabel laporan. */
+    font-variant-numeric: tabular-nums;
+    -webkit-font-smoothing: antialiased;
+    letter-spacing: -.006em;
 }
 
-.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
-  color: var(--bs-secondary-color);
-  text-align: end;
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 600;
+    letter-spacing: -.018em;
 }
 
-.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
-  text-align: start;
+/* Judul halaman: semua Index memakai <h1 class="h4">. */
+h1.h4 {
+    font-size: 1.125rem;
+    letter-spacing: -.02em;
+}
+
+hr {
+    border-color: var(--k-line);
+    opacity: 1;
+}
+
+.text-muted {
+    color: var(--k-muted) !important;
+}
+
+a {
+    text-decoration-thickness: 1px;
+    text-underline-offset: .15em;
+}
+
+/* Satu gaya fokus untuk semua — cincin tipis, bukan halo biru bawaan. */
+.btn:focus-visible,
+.form-control:focus,
+.form-select:focus,
+.form-check-input:focus,
+.page-link:focus,
+.btn-check:focus-visible + .btn {
+    outline: 0;
+    border-color: var(--k-accent);
+    box-shadow: 0 0 0 3px rgba(138, 90, 59, .18);
+}
+
+::selection {
+    background: var(--k-accent-soft);
+}
+
+/* ── 3. Komponen ──────────────────────────────────────────────────────── */
+
+/* Navbar --------------------------------------------------------------- */
+
+.app-navbar {
+    --bs-navbar-color: rgba(255, 255, 255, .68);
+    --bs-navbar-hover-color: #fff;
+    --bs-navbar-active-color: #fff;
+    --bs-navbar-padding-y: .5rem;
+    background-color: var(--k-ink);
+}
+
+.app-navbar .navbar-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: .01em;
+    color: #fff;
+}
+
+.app-navbar .navbar-brand svg {
+    opacity: .9;
+}
+
+.app-navbar .nav-link {
+    border-radius: var(--k-radius-sm);
+    padding: .375rem .75rem;
+    font-size: .9375rem;
+    transition: background-color .12s ease, color .12s ease;
+}
+
+.app-navbar .nav-link:hover,
+.app-navbar .nav-item.show > .nav-link {
+    background-color: rgba(255, 255, 255, .1);
+}
+
+.app-navbar .navbar-text {
+    color: rgba(255, 255, 255, .68);
+    font-size: .875rem;
+}
+
+.app-navbar .btn-outline-light {
+    --bs-btn-border-color: rgba(255, 255, 255, .28);
+    --bs-btn-hover-bg: rgba(255, 255, 255, .12);
+    --bs-btn-hover-border-color: rgba(255, 255, 255, .28);
+    --bs-btn-color: rgba(255, 255, 255, .85);
+}
+
+/* Peran pengguna: teks kecil, bukan badge warna-warni. */
+.app-navbar .badge {
+    background: rgba(255, 255, 255, .14) !important;
+    color: rgba(255, 255, 255, .85) !important;
+    font-weight: 500;
+}
+
+.dropdown-menu {
+    --bs-dropdown-border-color: transparent;
+    --bs-dropdown-link-active-bg: var(--k-accent-soft);
+    --bs-dropdown-link-active-color: var(--k-ink);
+    --bs-dropdown-link-hover-bg: var(--k-canvas);
+    --bs-dropdown-padding-y: .3125rem;
+    --bs-dropdown-item-padding-y: .4375rem;
+    box-shadow: var(--k-shadow-pop);
+    font-size: .9375rem;
+}
+
+.dropdown-item {
+    border-radius: var(--k-radius-sm);
+    width: auto;
+    margin: 0 .3125rem;
+}
+
+/* Kartu ---------------------------------------------------------------- */
+
+.card {
+    --bs-card-border-color: var(--k-line);
+    --bs-card-bg: var(--k-surface);
+    --bs-card-cap-bg: transparent;
+    --bs-card-spacer-y: 1rem;
+    --bs-card-spacer-x: 1.125rem;
+}
+
+.card-header {
+    border-bottom-color: var(--k-line);
+    font-size: .8125rem;
+    font-weight: 600;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    color: var(--k-ink-soft);
+    padding-top: .75rem;
+    padding-bottom: .75rem;
+}
+
+/* Header keranjang di kasir tetap punya tombol, jadi jangan dipaksa uppercase. */
+.card-header .btn {
+    text-transform: none;
+    letter-spacing: normal;
+}
+
+.card-footer {
+    background: transparent;
+    border-top-color: var(--k-line);
+}
+
+/* Kartu ringkasan angka besar di Dashboard. */
+.card .fs-4.fw-bold {
+    letter-spacing: -.03em;
+}
+
+/* Tombol --------------------------------------------------------------- */
+
+.btn {
+    --bs-btn-font-weight: 500;
+    --bs-btn-border-radius: var(--k-radius-sm);
+    --bs-btn-padding-y: .4375rem;
+    --bs-btn-padding-x: .875rem;
+    transition: background-color .12s ease, border-color .12s ease, color .12s ease;
+}
+
+.btn-sm {
+    --bs-btn-font-size: .8125rem;
+    --bs-btn-padding-y: .3125rem;
+    --bs-btn-padding-x: .625rem;
+}
+
+.btn-dark {
+    --bs-btn-bg: var(--k-ink);
+    --bs-btn-border-color: var(--k-ink);
+    --bs-btn-hover-bg: #322a25;
+    --bs-btn-hover-border-color: #322a25;
+    --bs-btn-active-bg: #000;
+    --bs-btn-active-border-color: #000;
+    --bs-btn-disabled-bg: var(--k-ink);
+    --bs-btn-disabled-border-color: var(--k-ink);
+}
+
+.btn-outline-dark {
+    --bs-btn-color: var(--k-ink);
+    --bs-btn-border-color: var(--k-line-strong);
+    --bs-btn-hover-bg: var(--k-ink);
+    --bs-btn-hover-border-color: var(--k-ink);
+    --bs-btn-active-bg: var(--k-ink);
+    --bs-btn-active-border-color: var(--k-ink);
+}
+
+.btn-outline-secondary {
+    --bs-btn-color: var(--k-ink-soft);
+    --bs-btn-border-color: var(--k-line-strong);
+    --bs-btn-hover-bg: var(--k-canvas);
+    --bs-btn-hover-color: var(--k-ink);
+    --bs-btn-hover-border-color: var(--k-line-strong);
+    --bs-btn-active-bg: var(--k-line);
+    --bs-btn-active-color: var(--k-ink);
+    --bs-btn-active-border-color: var(--k-line-strong);
+}
+
+.btn-outline-warning {
+    --bs-btn-color: var(--k-warning);
+    --bs-btn-border-color: var(--k-line-strong);
+    --bs-btn-hover-bg: var(--k-warning-soft);
+    --bs-btn-hover-color: var(--k-warning);
+    --bs-btn-hover-border-color: var(--k-warning);
+}
+
+.btn-outline-success {
+    --bs-btn-color: var(--k-success);
+    --bs-btn-border-color: var(--k-line-strong);
+    --bs-btn-hover-bg: var(--k-success-soft);
+    --bs-btn-hover-color: var(--k-success);
+    --bs-btn-hover-border-color: var(--k-success);
+}
+
+.btn-outline-danger {
+    --bs-btn-color: var(--k-danger);
+    --bs-btn-border-color: var(--k-line-strong);
+    --bs-btn-hover-bg: var(--k-danger-soft);
+    --bs-btn-hover-color: var(--k-danger);
+    --bs-btn-hover-border-color: var(--k-danger);
+}
+
+.btn-success {
+    --bs-btn-bg: var(--k-success);
+    --bs-btn-border-color: var(--k-success);
+    --bs-btn-hover-bg: #276b4e;
+    --bs-btn-hover-border-color: #276b4e;
+    --bs-btn-active-bg: #215c43;
+    --bs-btn-active-border-color: #215c43;
+    --bs-btn-disabled-bg: var(--k-success);
+    --bs-btn-disabled-border-color: var(--k-success);
+}
+
+.btn-primary {
+    --bs-btn-bg: var(--k-accent);
+    --bs-btn-border-color: var(--k-accent);
+    --bs-btn-hover-bg: var(--k-accent-ink);
+    --bs-btn-hover-border-color: var(--k-accent-ink);
+}
+
+.btn-secondary {
+    --bs-btn-bg: transparent;
+    --bs-btn-color: var(--k-ink-soft);
+    --bs-btn-border-color: var(--k-line-strong);
+    --bs-btn-hover-bg: var(--k-canvas);
+    --bs-btn-hover-color: var(--k-ink);
+    --bs-btn-hover-border-color: var(--k-line-strong);
+    --bs-btn-active-bg: var(--k-line);
+    --bs-btn-active-color: var(--k-ink);
+    --bs-btn-active-border-color: var(--k-line-strong);
+}
+
+/* Formulir ------------------------------------------------------------- */
+
+.form-control,
+.form-select {
+    --bs-border-radius: var(--k-radius-sm);
+    border-color: var(--k-line-strong);
+    padding: .4375rem .75rem;
+}
+
+.form-control::placeholder {
+    color: #b4aca6;
+}
+
+.form-label {
+    font-size: .8125rem;
+    font-weight: 500;
+    color: var(--k-ink-soft);
+    margin-bottom: .3125rem;
+}
+
+.input-group-text {
+    background: var(--k-canvas);
+    border-color: var(--k-line-strong);
+    color: var(--k-ink-soft);
+    font-size: .875rem;
+}
+
+.form-check-input {
+    border-color: var(--k-line-strong);
+}
+
+.form-check-input:checked {
+    background-color: var(--k-ink);
+    border-color: var(--k-ink);
+}
+
+/* Tabel ---------------------------------------------------------------- */
+
+.table {
+    --bs-table-border-color: var(--k-line);
+    --bs-table-hover-bg: #faf8f6;
+    margin-bottom: 0;
+}
+
+.table > thead {
+    --bs-table-bg: transparent;
+}
+
+/* thead.table-light bawaan terlalu berat; ganti jadi label kecil + garis. */
+.table > thead th {
+    background: transparent !important;
+    border-bottom: 1px solid var(--k-line-strong) !important;
+    color: var(--k-muted);
+    font-size: .75rem;
+    font-weight: 600;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    padding-top: .75rem;
+    padding-bottom: .75rem;
+    white-space: nowrap;
+}
+
+.table > tbody td {
+    padding-top: .6875rem;
+    padding-bottom: .6875rem;
+    border-color: var(--k-line);
+}
+
+.table > tbody > tr:last-child > * {
+    border-bottom-width: 0;
+}
+
+/* Tombol aksi di kolom terakhir tidak menempel satu sama lain. */
+.table td.text-end .btn + .btn,
+.table td.text-end .btn + form,
+.table td.text-end form + form {
+    margin-left: .25rem;
+}
+
+/* Badge ---------------------------------------------------------------- */
+
+/* Badge solid berwarna penuh terlihat murah di tabel yang panjang.
+   Diganti pil bernada lembut — kontras teksnya tetap lolos AA. */
+.badge {
+    --bs-badge-font-weight: 500;
+    --bs-badge-padding-x: .5rem;
+    --bs-badge-padding-y: .3em;
+    border-radius: 999px;
+    font-size: .75rem;
+    letter-spacing: .01em;
+}
+
+.badge.bg-success {
+    background: var(--k-success-soft) !important;
+    color: var(--k-success) !important;
+}
+
+.badge.bg-secondary {
+    background: var(--k-line) !important;
+    color: var(--k-ink-soft) !important;
+}
+
+.badge.bg-danger {
+    background: var(--k-danger-soft) !important;
+    color: var(--k-danger) !important;
+}
+
+.badge.bg-warning {
+    background: var(--k-warning-soft) !important;
+    color: var(--k-warning) !important;
+}
+
+.badge.bg-info {
+    background: var(--k-info-soft) !important;
+    color: var(--k-info) !important;
+}
+
+.badge.bg-dark {
+    background: var(--k-ink) !important;
+    color: #fff !important;
+}
+
+/* Badge stok menipis di navbar harus tetap menarik perhatian. */
+.app-navbar #low-stock-badge {
+    background: var(--k-danger) !important;
+    color: #fff !important;
+}
+
+/* Alert ---------------------------------------------------------------- */
+
+.alert {
+    --bs-alert-border-radius: var(--k-radius);
+    border: 1px solid transparent;
+    font-size: .9375rem;
+    padding: .75rem 1rem;
+}
+
+.alert-success {
+    background: var(--k-success-soft);
+    border-color: rgba(46, 125, 91, .2);
+    color: #235f45;
+}
+
+.alert-danger {
+    background: var(--k-danger-soft);
+    border-color: rgba(176, 58, 46, .2);
+    color: #8c2e24;
+}
+
+.alert-warning {
+    background: var(--k-warning-soft);
+    border-color: rgba(143, 98, 21, .22);
+    color: #74500f;
+}
+
+.alert-info {
+    background: var(--k-info-soft);
+    border-color: rgba(47, 110, 143, .2);
+    color: #275a75;
+}
+
+.alert a {
+    color: inherit;
+    font-weight: 500;
+}
+
+/* List group ----------------------------------------------------------- */
+
+.list-group {
+    --bs-list-group-border-color: var(--k-line);
+    --bs-list-group-bg: var(--k-surface);
+    --bs-list-group-action-hover-bg: var(--k-canvas);
+    --bs-list-group-active-bg: var(--k-ink);
+    --bs-list-group-active-border-color: var(--k-ink);
+    --bs-list-group-border-radius: var(--k-radius);
+}
+
+.list-group-item {
+    padding: .6875rem 1rem;
+}
+
+/* Pagination ----------------------------------------------------------- */
+
+.pagination {
+    --bs-pagination-border-color: transparent;
+    --bs-pagination-color: var(--k-ink-soft);
+    --bs-pagination-hover-bg: var(--k-line);
+    --bs-pagination-hover-border-color: transparent;
+    --bs-pagination-focus-bg: var(--k-line);
+    --bs-pagination-active-bg: var(--k-ink);
+    --bs-pagination-active-border-color: var(--k-ink);
+    --bs-pagination-border-radius: var(--k-radius-sm);
+    --bs-pagination-disabled-bg: transparent;
+    --bs-pagination-disabled-border-color: transparent;
+    gap: .1875rem;
+}
+
+.page-link {
+    min-width: 2rem;
+    text-align: center;
+}
+
+/* Modal ---------------------------------------------------------------- */
+
+.modal-content {
+    border: 0;
+    border-radius: .875rem;
+    box-shadow: var(--k-shadow-pop);
+}
+
+.modal-header,
+.modal-footer {
+    border-color: var(--k-line);
+}
+
+.modal-title {
+    font-size: 1rem;
+}
+
+.modal-backdrop.show {
+    opacity: .4;
+}
+
+/* Progress (grafik batang Dashboard) ----------------------------------- */
+
+.progress {
+    background: var(--k-line);
+    border-radius: 999px;
+}
+
+.progress-bar.bg-dark {
+    background: var(--k-ink) !important;
+    border-radius: 999px;
+}
+
+/* Validasi ------------------------------------------------------------- */
+
+.text-danger {
+    color: var(--k-danger) !important;
+}
+
+.field-validation-error {
+    display: inline-block;
+    margin-top: .25rem;
+    font-size: .8125rem;
+}
+
+.input-validation-error {
+    border-color: var(--k-danger) !important;
+}
+
+/* Halaman login -------------------------------------------------------- */
+
+.login-page {
+    background: var(--k-canvas);
+}
+
+.login-card {
+    background: var(--k-surface);
+    border: 1px solid var(--k-line);
+    border-radius: .875rem;
+}
+
+.login-mark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: .75rem;
+    background: var(--k-ink);
+    color: #fff;
 }
