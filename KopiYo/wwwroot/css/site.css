@@ -32,6 +32,9 @@
 
     --k-success: #2e7d5b;
     --k-success-soft: #e8f2ed;
+    /* Nada teks terpisah untuk badge lembut: --k-success di atas
+       --k-success-soft hanya 4.37:1, tepat di bawah ambang AA. */
+    --k-success-ink: #256349;
     --k-danger: #b03a2e;
     --k-danger-soft: #fbeae7;
     --k-warning: #8f6215;
@@ -438,7 +441,7 @@ a {
 
 .badge.bg-success {
     background: var(--k-success-soft) !important;
-    color: var(--k-success) !important;
+    color: var(--k-success-ink) !important;
 }
 
 .badge.bg-secondary {
