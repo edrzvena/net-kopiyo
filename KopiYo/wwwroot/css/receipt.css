@@ -1,7 +1,18 @@
 .receipt {
-    font-family: "Consolas", "Courier New", monospace;
+    font-family: "Cascadia Mono", "Consolas", "Courier New", monospace;
+    font-size: .8125rem;
+    line-height: 1.55;
     max-width: 22rem;
     margin: 0 auto;
+    color: var(--k-ink, #1a1614);
+}
+
+.receipt hr {
+    /* Garis putus-putus meniru sobekan kertas struk. */
+    border: 0;
+    border-top: 1px dashed var(--k-line-strong, #d9d3cd);
+    opacity: 1;
+    margin: .625rem 0;
 }
 
 /*
